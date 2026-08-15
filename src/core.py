@@ -1,9 +1,8 @@
-"""FastNote python_dearpygui — document model and shared action layer.
+"""FastNote python_gtk4 — document model and shared action layer.
 
 The actions in this module are the ONLY place the application's behaviour is
-implemented.  The GUI callbacks and the headless CLI both call these same
-functions (specification 5.2, shared-path rule), so a button cannot rot while
-the CLI still works.
+implemented.  The GUI callbacks call these same functions (specification 5.2,
+shared-path rule).
 """
 
 from __future__ import annotations
@@ -46,7 +45,7 @@ class Document:
         self.dirty = False
 
     def insert_text(self, text: str) -> None:
-        """Append text (the --insert seam drives FR-3 through this path)."""
+        """Append text to the document."""
         self.text += text
         self.dirty = True
 

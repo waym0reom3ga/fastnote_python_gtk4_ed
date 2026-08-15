@@ -3,10 +3,7 @@
 Toolbar (Open / Save / Save As / Export / theme), editor pane, rendered
 preview pane, in-app file browser — all built from GTK4 widgets (spec 3.1:
 no native dialogs).  The toolbar buttons connect to the same actions the
-CLI uses (src/core.py).  A pointer registry mirrors the toolbar layout so
-the headless click tests can inject pointer events through the same seam
-the real widgets feed; every assertion on state changes proves the button
-handler ran.
+GUI uses (src/core.py).
 """
 
 from __future__ import annotations
