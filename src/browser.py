@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 
-from .core import APP_EXTENSIONS, NoteError
+from src.core import APP_EXTENSIONS, NoteError
 
 
 class BrowserOpen(Exception):

@@ -9,10 +9,10 @@ from __future__ import annotations
 import os
 import tempfile
 
-from .browser import FileBrowser
-from .core import AppState, action_open, action_save, run_cli_actions
-from .export import write_html_export, write_pdf_export
-from .renderer import (render_fragment, render_plain, sanitize_css,
+from src.browser import FileBrowser
+from src.core import AppState, action_open, action_save, run_cli_actions
+from src.export import write_html_export, write_pdf_export
+from src.renderer import (render_fragment, render_plain, sanitize_css,
                        measure_large_document)
 
 FAILURES: list[str] = []

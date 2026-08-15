@@ -1,10 +1,16 @@
-.PHONY: selftest clicks test
+.PHONY: all clean test
 
-selftest:
-	./run.sh --headless --notes-dir /tmp/fastnote_notes --selftest
+BIN := fastnote_python_gtk4
 
-clicks:
-	python3 -m pytest tests/ -q
+all: $(BIN)
 
-test: selftest clicks
+$(BIN): src/main.py src/*.py
+	nuitka --onefile --output-filename=$(BIN) \
+		--include-package=src \
+		src/main.py
 
+test: $(BIN)
+	./$(BIN) --version
+
+clean:
+	rm -rf $(BIN) main.build main.onefile-build main.dist

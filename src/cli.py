@@ -1,13 +1,15 @@
-"""Headless CLI seam (spec §5).  Shared-path rule: every action funnels
-through the same action functions the GUI uses (src/core.py)."""
+"""Entry point (spec §5.1).
+
+Exactly two permitted flags: --version and --event-file.
+Unknown flags exit non-zero.
+"""
 
 from __future__ import annotations
 
 import argparse
 import sys
 
-from .core import (PORT_ID, VERSION, AppState, NoteError,
-                   run_cli_actions)
+from src.core import PORT_ID, VERSION, AppState
 
 
 class Parser(argparse.ArgumentParser):
@@ -19,14 +21,8 @@ class Parser(argparse.ArgumentParser):
 def build_parser() -> Parser:
     p = Parser(prog="fastnote", add_help=False,
                description="FastNote markdown editor")
-    p.add_argument("--open", metavar="PATH")
-    p.add_argument("--insert", metavar="TEXT")
-    p.add_argument("--save", action="store_true")
-    p.add_argument("--export", metavar="PATH")
-    p.add_argument("--headless", action="store_true")
-    p.add_argument("--notes-dir", metavar="PATH")
-    p.add_argument("--selftest", action="store_true")
     p.add_argument("--version", action="store_true")
+    p.add_argument("--event-file", metavar="PATH")
     p.add_argument("--help", action="store_true")
     return p
 
@@ -41,23 +37,14 @@ def main(argv: list[str]) -> int:
     if args.help:
         parser.print_help()
         return 0
-    if args.selftest:
-        from .selftest import run_selftest
-        return 0 if run_selftest() else 1
 
-    state = AppState(notes_dir=args.notes_dir)
-    try:
-        run_cli_actions(state, args.open, args.insert, args.save, args.export)
-    except NoteError as exc:
-        print(f"fastnote: {exc}", file=sys.stderr)
-        return 1
+    state = AppState()
+    if args.event_file:
+        state.event_file = args.event_file
 
-    if args.headless:
-        return 0
-
-    from .ui_app import FastNoteApp
-    app = FastNoteApp(state, notes_dir=args.notes_dir)
-    app.run(open_path=args.open)
+    from src.ui_app import FastNoteApp
+    app = FastNoteApp(state)
+    app.run()
     return 0
 
 

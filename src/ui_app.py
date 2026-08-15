@@ -18,12 +18,12 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gdk, GLib, Gtk
 
-from .browser import FileBrowser
-from .core import (EDITOR_NAME, VERSION, AppState, NoteError,
+from src.browser import FileBrowser
+from src.core import (EDITOR_NAME, VERSION, AppState, NoteError,
                    action_export_html, action_export_pdf, action_open,
-                   action_save, action_save_as)
-from .export import ensure_new_path
-from .renderer import render_plain
+                   action_save, action_save_as, fn_event)
+from src.export import ensure_new_path
+from src.renderer import render_plain
 
 THEMES = ("light", "dark")
 
@@ -217,6 +217,46 @@ class FastNoteApp:
             Control("Theme", 384, 6, 452, tb - 6, self.on_theme),
         ]
 
+    # ------------------------------------------------------------ keyboard
+
+    def on_key_pressed(self, _ctrl, keyval, _keycode, state):
+        """Keyboard accelerators (spec 5.2) and browser contract (spec 3.2)."""
+        ctrl = bool(state & Gdk.ModifierType.CONTROL_MASK)
+        shift = bool(state & Gdk.ModifierType.SHIFT_MASK)
+
+        # Browser keyboard contract: Enter confirms, Escape cancels
+        if self.browser is not None:
+            if keyval in (Gdk.KEY_Return, Gdk.KEY_KP_Enter):
+                self.confirm_browser()
+                return True
+            if keyval == Gdk.KEY_Escape:
+                self.browser_win.hide()
+                self.browser = None
+                return True
+            if ctrl and keyval == Gdk.KEY_l:
+                self.browser_path_entry.grab_focus()
+                return True
+
+        # Accelerators (spec 5.2)
+        if ctrl and not shift:
+            if keyval == Gdk.KEY_o:
+                self.on_open()
+                return True
+            if keyval == Gdk.KEY_s:
+                self.on_save()
+                return True
+            if keyval == Gdk.KEY_e:
+                self.on_export("html")
+                return True
+        if ctrl and shift:
+            if keyval == Gdk.KEY_s:
+                self.on_save_as()
+                return True
+            if keyval == Gdk.KEY_e:
+                self.on_export("pdf")
+                return True
+        return False
+
     # ------------------------------------------------------------ GTK UI
 
     def build_browser_window(self):
@@ -350,21 +390,25 @@ class FastNoteApp:
         self.win.set_child(vbox)
         self.rebuild_controls()
 
-    def run(self, open_path: str | None = None):
+        # Keyboard accelerators (spec 5.2)
+        key_ctrl = Gtk.EventControllerKey()
+        key_ctrl.connect("key-pressed", self.on_key_pressed)
+        self.win.add_controller(key_ctrl)
+
+    def run(self):
         app = Gtk.Application(application_id="org.fastnote.gtk4",
                               flags=0)
 
         def _activate(_a=None):
             self.build_ui()
             self.win.set_application(app)
-            if open_path:
-                self.open_path(open_path)
             self.win.present()
+            fn_event(self.state, "painted")
 
         app.connect("activate", _activate)
         app.run()
 
 
 if __name__ == "__main__":
-    from .core import AppState
+    from src.core import AppState
     FastNoteApp(AppState()).run()

@@ -78,10 +78,26 @@ class AppState:
         self.notes_dir = os.path.abspath(notes_dir) if notes_dir else os.path.expanduser("~")
         self.saved_once = False
         self.failed: list[str] = []
+        self.event_file: str | None = None
+
+
+def fn_event(state: AppState, marker: str) -> None:
+    """Append a phase marker to the event file (spec 5.1).
+
+    A reporting outlet only — never drives or simulates an operation.
+    """
+    if state is None or state.event_file is None:
+        return
+    try:
+        with open(state.event_file, "a", encoding="utf-8") as f:
+            f.write(marker + "\n")
+    except OSError:
+        pass
 
 
 def action_open(state: AppState, path: str) -> None:
     state.doc.open(path)
+    fn_event(state, "open")
 
 
 def action_insert(state: AppState, text: str) -> None:
@@ -91,25 +107,29 @@ def action_insert(state: AppState, text: str) -> None:
 def action_save(state: AppState) -> str:
     path = state.doc.save()
     state.saved_once = True
+    fn_event(state, "save")
     return path
 
 
 def action_save_as(state: AppState, path: str) -> str:
     path = state.doc.save_as(path)
     state.saved_once = True
+    fn_event(state, "save-as")
     return path
 
 
 def action_export_html(state: AppState, path: str, theme: str = "light",
                        custom_css: str | None = None) -> str:
-    from .export import write_html_export
+    from src.export import write_html_export
     write_html_export(state.doc.text, path, theme=theme, custom_css=custom_css)
+    fn_event(state, "export-html")
     return path
 
 
 def action_export_pdf(state: AppState, path: str) -> str:
-    from .export import write_pdf_export
+    from src.export import write_pdf_export
     write_pdf_export(state.doc.text, path)
+    fn_event(state, "export-pdf")
     return path
 
 

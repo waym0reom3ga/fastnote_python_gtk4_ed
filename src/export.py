@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import os
 
-from .pdfwriter import pdf_from_lines
-from .renderer import doc_title, render_page, render_plain
+from src.pdfwriter import pdf_from_lines
+from src.renderer import doc_title, render_page, render_plain
 
 
 def write_html_export(text: str, path: str, theme: str = "light",
