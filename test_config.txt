@@ -1,6 +1,6 @@
 test: binary_size
-  libs: none
-  notes: Self-contained (Nuitka). Only libc/libm/libgcc external. 11.7 MB includes GTK4 typelib data.
+  libs: libgtk-4.so.1,libgdk_pixbuf-2.0.so.0,libcairo.so.2,libcairo-gobject.so.2,libpango-1.0.so.0,libpangocairo-1.0.so.0,libpangoft2-1.0.so.0,libgobject-2.0.so.0,libglib-2.0.so.0,libgio-2.0.so.0,libgmodule-2.0.so.0,libharfbuzz.so.0,libfontconfig.so.1,libfreetype.so.6,libfribidi.so.0,libepoxy.so.0,libpng16.so.16,libtiff.so.6,libjpeg.so.8,libxml2.so.16,libz.so.1
+  notes: Nuitka binary (11.8 MB) + system GTK4 stack. Bundles Python runtime + gi typelibs but still dynamically links GTK4.
 
 test: peak_ram_profile
   capable: yes
