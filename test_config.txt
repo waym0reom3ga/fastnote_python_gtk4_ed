@@ -1,0 +1,11 @@
+test: binary_size
+  libs: none
+  notes: Self-contained (Nuitka). Only libc/libm/libgcc external. 11.7 MB includes GTK4 typelib data.
+
+test: peak_ram_profile
+  capable: yes
+  notes: Requires display. Nuitka binary, can use /proc/[pid]/status for VmRSS.
+
+test: gui_tools
+  capable: yes
+  notes: GTK4 via PyGObject. Keyboard accelerators via GtkEventControllerKey.
